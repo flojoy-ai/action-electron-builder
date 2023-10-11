@@ -13,9 +13,9 @@
 	"main": "./index.js",
 	"scripts": {
 		"lint": "eslint --max-warnings 0 \"**/*.js\"",
-		"lint:fix": "yarn lint --fix",
+		"lint:fix": "pnpm run lint --fix",
 		"format": "prettier --ignore-path ./.gitignore --list-different \"**/*.{css,html,js,json,jsx,less,md,scss,ts,tsx,vue,yaml,yml}\"",
-		"format:fix": "yarn format --write"
+		"format:fix": "pnpm run format --write"
 	},
 	"dependencies": {},
 	"peerDependencies": {},
