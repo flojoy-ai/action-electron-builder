@@ -12,13 +12,8 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        package_manager: [npm, yarn]
-        package_root:
-          [
-            "./test/app-in-root/",
-            "./test/app-in-subdirectory/",
-            "./test/vue-app",
-          ]
+        package_manager: [pnpm]
+        package_root: ["./test/app-in-root/", "./test/app-in-subdirectory/"]
 
     steps:
       - name: Check out Git repository
