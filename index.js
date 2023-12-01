@@ -18,7 +18,8 @@ const exit = (msg) => {
 /**
  * Executes the provided shell command and redirects stdout/stderr to the console
  */
-const run = (cmd, cwd) => execSync(cmd, { encoding: "utf8", stdio: "inherit", cwd });
+const run = (cmd, cwd) =>
+	execSync(cmd, { encoding: "utf8", stdio: "inherit", cwd });
 
 /**
  * Determines the current operating system (one of ["mac", "windows", "linux"])
@@ -131,7 +132,9 @@ const runAction = () => {
 	}
 
 	log(`Building${release ? " and releasing" : ""} the Electron app…`);
-	const cmd = useVueCli ? "vue-cli-service electron:build" : `electron-package:${platform}`;
+	const cmd = useVueCli
+		? "vue-cli-service electron:build"
+		: `electron-package:${platform}`;
 	for (let i = 0; i < maxAttempts; i += 1) {
 		try {
 			run(
