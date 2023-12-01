@@ -1,5 +1,5 @@
 const { execSync } = require("child_process");
-const { existsSync, readFileSync } = require("fs");
+const { existsSync } = require("fs");
 const { join } = require("path");
 
 /**
@@ -72,7 +72,6 @@ const runAction = () => {
 	const skipBuild = getInput("skip_build") === "true";
 	const skipInstall = getInput("skip_install") === "true";
 
-	const useVueCli = getInput("use_vue_cli") === "true";
 	const args = getInput("args") || "";
 	const maxAttempts = Number(getInput("max_attempts") || "1");
 
@@ -81,11 +80,6 @@ const runAction = () => {
 	const appRoot = getInput("app_root") || pkgRoot;
 
 	const pkgJsonPath = join(pkgRoot, "package.json");
-	const pkgLockPath = join(pkgRoot, "package-lock.json");
-
-	// Determine whether NPM should be used to run commands (instead of Yarn, which is the default)
-	const useNpm = existsSync(pkgLockPath);
-	log(`Will run ${useNpm ? "NPM" : "Yarn"} commands in directory "${pkgRoot}"`);
 
 	// Make sure `package.json` file exists
 	if (!existsSync(pkgJsonPath)) {
@@ -110,8 +104,8 @@ const runAction = () => {
 	if (skipInstall) {
 		log("Skipping install script because `skip_install` option is set");
 	} else {
-		log(`Installing dependencies using ${useNpm ? "NPM" : "Yarn"}…`);
-		run(useNpm ? "npm install" : "yarn", pkgRoot);
+		log("Installing dependencies using pnpm");
+		run("pnpm install");
 	}
 
 	// Run NPM build script if it exists
@@ -119,28 +113,15 @@ const runAction = () => {
 		log("Skipping build script because `skip_build` option is set");
 	} else {
 		log("Running the build script…");
-		if (useNpm) {
-			run(`npm run ${buildScriptName} --if-present`, pkgRoot);
-		} else {
-			// TODO: Use `yarn run ${buildScriptName} --if-present` once supported
-			// https://github.com/yarnpkg/yarn/issues/6894
-			const pkgJson = JSON.parse(readFileSync(pkgJsonPath, "utf8"));
-			if (pkgJson.scripts && pkgJson.scripts[buildScriptName]) {
-				run(`yarn run ${buildScriptName}`, pkgRoot);
-			}
-		}
+		run(`pnpm run ${buildScriptName} --if-present`, pkgRoot);
 	}
 
 	log(`Building${release ? " and releasing" : ""} the Electron app…`);
-	const cmd = useVueCli
-		? "vue-cli-service electron:build"
-		: `electron-package:${platform}`;
+	const cmd = `electron-package:${platform}`;
 	for (let i = 0; i < maxAttempts; i += 1) {
 		try {
 			run(
-				`${useNpm ? "npx --no-install" : "pnpm run"} ${cmd} ${
-					release ? "--publish always" : ""
-				} ${args}`,
+				`pnpm run ${cmd} ${release ? "--publish always" : ""} ${args}`,
 				appRoot,
 			);
 			break;
